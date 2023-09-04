@@ -131,33 +131,35 @@ def minimax(board):
         return maxvalue(board)[1]
     return minvalue(board)[1]
 
-def maxvalue(board, foundValue = -999):
+def maxvalue(board, ignoreValuesGreatherThan = 999):
     if terminal(board):
         return (utility(board), None)
-    response = (foundValue, None)
+    response = (-999, None)
     for action in actions(board):        
-        temp = minvalue(result(board, action))
+        temp = minvalue(result(board, action), max(response[0], -999))
         if (temp[0] > response[0]):
             response = (temp[0], action)
+        if response[0] >= ignoreValuesGreatherThan :
+            return response
     return response
 
-def minvalue(board, foundValue = 999):
+def minvalue(board, ignoreValuesLessThan = -999):
     if terminal(board):
         return (utility(board), None)
-    response = (foundValue, None)
+    response = (999, None)
     for action in actions(board):        
-        temp = maxvalue(result(board, action))
-        if (temp[0] < response[0]):
+        temp = maxvalue(result(board, action), min(response[0], 999))
+        if temp[0] < response[0]:
             response = (temp[0], action)
+        if response[0] <= ignoreValuesLessThan :
+            return response
     return response
 
-board = [[EMPTY, X, O],
-            [O, X, X],
-            [X, EMPTY, O]]
-    
-print(minimax(board))
-
 '''
+board = [[EMPTY, O, EMPTY],
+            [X, O, X],
+            [X, EMPTY, O]]
+
 # minimax
 print(minimax(board))
 
@@ -184,4 +186,3 @@ for (i,j) in actions(board):
 # player    
 print(f"player: {player(board)}")
 '''
-
