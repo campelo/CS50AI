@@ -38,21 +38,50 @@ def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    raise NotImplementedError
+    result = []
+    for rowIdx, row in enumerate(board):
+        for colIdx, col in enumerate(row):
+            if col == EMPTY:
+                result.append((rowIdx,colIdx))
+    return result
 
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    raise NotImplementedError
+    if board[action[0]][action[1]] != EMPTY:
+        raise AttributeError("Action not allowed")
+    response = []
+    for rowIdx, row in enumerate(board):
+        response.append([])
+        for col in row:
+            response[rowIdx].append(col)
+    response[action[0]][action[1]] = player(board)
+    return response
 
 
 def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-    raise NotImplementedError
+    for row in board:
+        if hasWinner(row):
+            return row[0]
+    for i in range(2):
+        if (hasWinner([board[0][i],board[1][i],board[2][i]])):
+            return board[0][i]
+    if (hasWinner([board[0][0],board[1][1],board[2][2]])):
+        return board[0][0]
+    if (hasWinner([board[2][2],board[1][1],board[0][0]])):
+        return board[2][2]
+    return None
+    
+    
+def hasWinner(threeValues):
+    if EMPTY in threeValues:
+        return False
+    return all(value is threeValues[0] for value in threeValues)
 
 
 def terminal(board):
