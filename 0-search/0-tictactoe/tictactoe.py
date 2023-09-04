@@ -72,11 +72,10 @@ def winner(board):
         if (hasWinner([board[0][i],board[1][i],board[2][i]])):
             return board[0][i]
     if (hasWinner([board[0][0],board[1][1],board[2][2]])):
-        return board[0][0]
-    if (hasWinner([board[2][2],board[1][1],board[0][0]])):
-        return board[2][2]
+        return board[1][1]
+    if (hasWinner([board[0][2],board[1][1],board[2][0]])):
+        return board[1][1]
     return None
-    
     
 def hasWinner(threeValues):
     if EMPTY in threeValues:
@@ -88,14 +87,25 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    return winner(board) is not None or not hasEmptyCell(board)
+    
+def hasEmptyCell(board):
+    for row in board:
+        if EMPTY in row:
+            return True
+    return False
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    raise NotImplementedError
+    if terminal(board):
+        if winner(board) == X:
+            return 1
+        if winner(board) == O:
+            return -1
+    return 0
 
 
 def minimax(board):
