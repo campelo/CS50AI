@@ -17,11 +17,11 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY]]
 
-
 def player(board):
     """
     Returns player who has the next turn on a board.
     """
+    validateBoard(board)
     xCount = 0
     oCount = 0
     for row in board:
@@ -38,6 +38,7 @@ def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
+    validateBoard(board)
     result = []
     for rowIdx, row in enumerate(board):
         for colIdx, col in enumerate(row):
@@ -50,6 +51,7 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    validateBoard(board)
     if board[action[0]][action[1]] != EMPTY:
         raise AttributeError("Action not allowed")
     response = []
@@ -65,6 +67,7 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
+    validateBoard(board)
     for row in board:
         if hasWinner(row):
             return row[0]
@@ -82,14 +85,27 @@ def hasWinner(threeValues):
         return False
     return all(value is threeValues[0] for value in threeValues)
 
+def hasValidCells(board):
+    for row in board:
+        for i in range(3):
+            if (row[i] not in [X, O, EMPTY]):
+                return False
+    return True
+    
+def validateBoard(board):
+    if not board is None and len(board) == 3 and all(len(row) == 3 for row in board) and hasValidCells(board):
+        return    
+    raise ValueError("board has invalid values")
 
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
+    validateBoard(board)
     return winner(board) is not None or not hasEmptyCell(board)
     
 def hasEmptyCell(board):
+    validateBoard(board)
     for row in board:
         if EMPTY in row:
             return True
@@ -100,6 +116,7 @@ def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
+    validateBoard(board)
     if terminal(board):
         if winner(board) == X:
             return 1
@@ -112,4 +129,4 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    validateBoard(board)
