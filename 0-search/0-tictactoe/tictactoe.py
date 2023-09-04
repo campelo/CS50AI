@@ -8,7 +8,6 @@ X = "X"
 O = "O"
 EMPTY = None
 
-
 def initial_state():
     """
     Returns starting state of the board.
@@ -46,7 +45,6 @@ def actions(board):
                 result.append((rowIdx,colIdx))
     return result
 
-
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
@@ -62,7 +60,6 @@ def result(board, action):
     response[action[0]][action[1]] = player(board)
     return response
 
-
 def winner(board):
     """
     Returns the winner of the game, if there is one.
@@ -71,7 +68,7 @@ def winner(board):
     for row in board:
         if hasWinner(row):
             return row[0]
-    for i in range(2):
+    for i in range(3):
         if (hasWinner([board[0][i],board[1][i],board[2][i]])):
             return board[0][i]
     if (hasWinner([board[0][0],board[1][1],board[2][2]])):
@@ -111,7 +108,6 @@ def hasEmptyCell(board):
             return True
     return False
 
-
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
@@ -124,9 +120,68 @@ def utility(board):
             return -1
     return 0
 
-
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
     validateBoard(board)
+    if (terminal(board)):
+        return None
+    if player(board) is X:
+        return maxvalue(board)[1]
+    return minvalue(board)[1]
+
+def maxvalue(board, foundValue = -999):
+    if terminal(board):
+        return (utility(board), None)
+    response = (foundValue, None)
+    for action in actions(board):        
+        temp = minvalue(result(board, action))
+        if (temp[0] > response[0]):
+            response = (temp[0], action)
+    return response
+
+def minvalue(board, foundValue = 999):
+    if terminal(board):
+        return (utility(board), None)
+    response = (foundValue, None)
+    for action in actions(board):        
+        temp = maxvalue(result(board, action))
+        if (temp[0] < response[0]):
+            response = (temp[0], action)
+    return response
+
+board = [[EMPTY, X, O],
+            [O, X, X],
+            [X, EMPTY, O]]
+    
+print(minimax(board))
+
+'''
+# minimax
+print(minimax(board))
+
+# validateBoard
+print(validateBoard(board))
+
+# utility
+print(utility(board))
+
+# terminal 
+print(terminal(board))
+
+# winner  
+print (winner(board))
+
+# result 
+r = result(board, (0,2))
+print(r)
+
+# actions
+for (i,j) in actions(board):
+    print(f"action: {i}, {j}")
+
+# player    
+print(f"player: {player(board)}")
+'''
+
