@@ -99,21 +99,24 @@ class Sentence():
         self.check_known_cells()
     
     def __eq__(self, other):
-        return self.cells == other.cells and self.count == other.count
+        return self.cells == other.cells and self.safes == other.safes and self.mines == other.mines and self.count == other.count
 
     def __str__(self):
         return f"{self.cells} = {self.count}"
 
-    def current_cells(self):
-        return (self.cells, self.count)
+    def unknown_cells(self):
+        return self.cells.difference(self.mines.union(self.safes))
+
+    def current_unknown_data(self):
+        return (self.unknown_cells(), self.count - len(self.mines))
 
     def check_known_cells(self):
-        if len(self.cells) > 0 and self.count == 0:
-            self.safes.update(self.cells)
-            self.cells = set()
-        if len(self.cells) > 0 and self.count == len(self.cells):
-            self.mines.update(self.cells)
-            self.cells = set()
+        uCells, uCount = self.current_unknown_data()
+        if len(uCells) > 0 and uCount == 0:
+            self.safes.update(uCells)
+            uCells, uCount = self.current_unknown_data()
+        if len(uCells) > 0 and uCount == len(uCells):
+            self.mines.update(uCells)
 
     def known_mines(self):
         """
@@ -135,8 +138,6 @@ class Sentence():
         if (cell not in self.cells or cell in self.mines):
             return
         self.mines.add(cell)
-        self.cells.remove(cell)
-        self.count-=1
         self.check_known_cells()
 
     def mark_safe(self, cell):
@@ -147,7 +148,6 @@ class Sentence():
         if (cell not in self.cells or cell in self.safes):
             return
         self.safes.add(cell)
-        self.cells.remove(cell)
         self.check_known_cells()
 
 class MinesweeperAI():
@@ -236,9 +236,9 @@ class MinesweeperAI():
                 for jK in range(0, len(self.knowledge)):
                     if (iK == jK):
                         continue
-                    (iCells, iCount) = self.knowledge[iK].current_cells()
-                    (jCells, jCount) = self.knowledge[jK].current_cells()
-                    if (iCells.issubset(jCells)):
+                    iCells, iCount = self.knowledge[iK].current_unknown_data()
+                    jCells, jCount = self.knowledge[jK].current_unknown_data()
+                    if iCells.issubset(jCells):
                         newCells = jCells.difference(iCells)
                         newCount = jCount - iCount
                         if not newCells:
@@ -274,8 +274,8 @@ class MinesweeperAI():
             2) are not known to be mines
         """
         i = 0
-        j = 0
-        cell = (i, j)
+        j = -1
+        cell = (random.randint(0,self.height-1), random.randint(0,self.width-1))
         while (cell in self.mines.union(self.moves_made)):
             if j == self.width-1:
                 i += 1
