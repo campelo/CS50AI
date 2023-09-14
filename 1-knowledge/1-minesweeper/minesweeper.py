@@ -178,7 +178,6 @@ class MinesweeperAI():
         """
         if cell in self.mines:
             return
-        print(f"mine {cell}")
         self.mines.add(cell)
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
@@ -190,7 +189,6 @@ class MinesweeperAI():
         """
         if cell in self.safes:
             return
-        print(f"safe {cell}")
         self.safes.add(cell)
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
