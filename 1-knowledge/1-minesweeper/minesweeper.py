@@ -262,9 +262,9 @@ class MinesweeperAI():
                 self.mark_mine(m)
 
         self.knowledge = [k for k in self.knowledge if not k.can_be_deleted()]
-        print(f"know: {len(self.knowledge)}")
-        print(f"safes: {len(self.safes.difference(self.moves_made))}")
-        print(f"mines: {len(self.mines)}")
+        # print(f"know: {len(self.knowledge)}")
+        # print(f"safes: {len(self.safes.difference(self.moves_made))}")
+        # print(f"mines: {len(self.mines)}")
 
     def add_inference(self, iCells, iCount, jCells, jCount):
         if iCells.issubset(jCells):
@@ -323,5 +323,5 @@ class MinesweeperAI():
             if (i == self.height-1 and j == self.width-1):
                 return None
             cell = (i, j)
-        print(f"random: {cell}")
+        # print(f"random: {cell}")
         return cell
