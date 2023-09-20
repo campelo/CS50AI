@@ -6,7 +6,6 @@ import sys
 DAMPING = 0.85
 SAMPLES = 10000
 
-
 def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
@@ -19,7 +18,6 @@ def main():
     print(f"PageRank Results from Iteration")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
-
 
 def crawl(directory):
     """
@@ -47,7 +45,6 @@ def crawl(directory):
 
     return pages
 
-
 def transition_model(corpus, page, damping_factor):
     """
     Return a probability distribution over which page to visit next,
@@ -57,9 +54,7 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    result = {}
-    for k in corpus:
-        result[k] = 0.0
+    result = {k: 0.0 for k in corpus}
     if page is None or len(corpus[page]) == 0:
         dist = 1 / len(corpus)
         for k in corpus:
@@ -82,9 +77,7 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    count = {}
-    for k in corpus:
-        count[k] = 0
+    count = {k: 0 for k in corpus}
     page = random.choice(list(corpus.keys()))
 
     for _ in range(0, n):
@@ -92,9 +85,8 @@ def sample_pagerank(corpus, damping_factor, n):
         t_model = transition_model(corpus, page, damping_factor)
         page = random.choices(list(t_model.keys()), list(t_model.values()))[0]
 
-    result = {}
-    for k in count:
-        result[k] = count[k]/n
+    result = {k: count[k]/n for k in count}
+    # print(f"sum = {sum(result.values())}")
     return result
 
 def iterate_pagerank(corpus, damping_factor):
@@ -106,31 +98,28 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    result = {}
-    can_stop = {}
-    for p in corpus:
-        result[p] = 1/len(corpus)
-        can_stop[p] = False
+    result = {p: 1/len(corpus) for p in corpus}
+    can_stop = {p: False for p in corpus}
     
     while any(v is False for v in can_stop.values()):
         for p in result:
-            link_to_p = {}
-            for page in corpus:
+            second = 0
+            for page, link in corpus.items():
                 if page == p:
                     continue
-                link = corpus[page]
                 if not link:
-                    link_to_p[page] = len(corpus)
+                    second += result[page]/len(corpus)
                 elif p in link:
-                    link_to_p[page] = len(link)
-            second = 0
-            for l_p in link_to_p:
-                second += result[l_p]/link_to_p[l_p]
+                    second += result[page]/len(link)               
             new_pr = ((1-damping_factor)/len(corpus))+(damping_factor*second)
             if new_pr - result[p] < 0.001:
                 can_stop[p] = True
             result[p] = new_pr
+        
+        temp_sum = sum(result.values())
+        result = {p: (r / temp_sum) for p, r in result.items()}
 
+    # print(f"sum = {round(sum(result.values()),4)}")
     return result
 
 if __name__ == "__main__":
