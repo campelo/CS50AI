@@ -2,7 +2,6 @@ import sys
 
 from crossword import *
 
-
 class CrosswordCreator():
 
     def __init__(self, crossword):
@@ -99,7 +98,8 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        for var, words in list(self.domains.items()):
+            self.domains[var] = { word for word in words if len(word) == var.length }
 
     def revise(self, x, y):
         """
