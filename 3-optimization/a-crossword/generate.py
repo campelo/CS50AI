@@ -110,7 +110,15 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        revised = False
+        common_cell = list(set(x.cells).intersection(set(y.cells)))[0]
+        x_idx = x.cells.index(common_cell)
+        y_idx = y.cells.index(common_cell)
+        for x_word in list(self.domains[x]):
+            if len([y_word for y_word in self.domains[y] if y_word[y_idx] == x_word[x_idx]]) == 0:
+                self.domains[x].remove(x_word)
+                revised = True
+        return revised
 
     def ac3(self, arcs=None):
         """
@@ -121,7 +129,18 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        if arcs is None:
+            arcs = [(var, neighbor) for var in self.domains for neighbor in self.crossword.neighbors(var)]
+
+        while arcs:
+            x, y = arcs.pop()
+            if self.revise(x, y):
+                if len(self.domains[x]) == 0:
+                    return False
+                for z in self.crossword.neighbors(x):
+                    if z is not y:
+                        arcs.append((z,x))
+        return True
 
     def assignment_complete(self, assignment):
         """
