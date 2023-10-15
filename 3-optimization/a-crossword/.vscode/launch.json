@@ -11,7 +11,7 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "justMyCode": true,
-      "args": ["./data/structure0.txt", "./data/words0.txt", "solution.png"]
+      "args": ["./data/structure2.txt", "./data/words2.txt", "solution.png"]
     }
   ]
 }
