@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
 TEST_SIZE = 0.4
-
+MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 def main():
 
@@ -59,16 +59,44 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    evidences = []
+    labels = []
+    with open(filename, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            evidences.append([
+                int(row['Administrative']),
+                float(row['Administrative_Duration']),
+                int(row['Informational']),
+                float(row['Informational_Duration']),
+                int(row['ProductRelated']),
+                float(row['ProductRelated_Duration']),
+                float(row['BounceRates']),
+                float(row['ExitRates']),
+                float(row['PageValues']),
+                float(row['SpecialDay']),
+                MONTHS.index(row['Month']),
+                int(row['OperatingSystems']),
+                int(row['Browser']),
+                int(row['Region']),
+                int(row['TrafficType']),
+                int(row['VisitorType'] == 'Returning_Visitor'),
+                bool_to_int(row['Weekend'])
+            ])
+            labels.append(bool_to_int(row['Revenue']))
+    return (evidences, labels)
 
+def bool_to_int(value):
+    return 1 if value == 'TRUE' else 0
 
 def train_model(evidence, labels):
     """
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
-
+    model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(evidence, labels)
+    return model
 
 def evaluate(labels, predictions):
     """
@@ -85,8 +113,19 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    sen_count = 0
+    spe_count = 0
+    for i in range(len(labels)):
+        if labels[i] == predictions[i]:
+            if labels[i] == 1:
+                sen_count += 1
+            else:
+                spe_count += 1
+    
+    sensitivity = sen_count / len([label for label in labels if label == 1])
+    specificity = spe_count / len([label for label in labels if label == 0])
 
+    return sensitivity, specificity
 
 if __name__ == "__main__":
     main()
