@@ -101,7 +101,10 @@ class NimAI():
         Return the Q-value for the state `state` and the action `action`.
         If no Q-value exists yet in `self.q`, return 0.
         """
-        raise NotImplementedError
+        result = self.q.get((tuple(state), action))
+        if not result:
+            return 0
+        return result
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
         """
@@ -118,7 +121,8 @@ class NimAI():
         `alpha` is the learning rate, and `new value estimate`
         is the sum of the current reward and estimated future rewards.
         """
-        raise NotImplementedError
+        key = (tuple(state), action)
+        self.q[key] = old_q + self.alpha * ((reward + future_rewards) - old_q)
 
     def best_future_reward(self, state):
         """
@@ -130,7 +134,11 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        raise NotImplementedError
+        possible_actions = {key: value for key, value in self.q.items() if key[0]== tuple(state)}
+        result = 0
+        if possible_actions:
+            result = max(possible_actions.items(), key=lambda x: x[1])[1]
+        return result
 
     def choose_action(self, state, epsilon=True):
         """
@@ -147,8 +155,17 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
-        raise NotImplementedError
-
+        best_weights = [1.0, 0.0] if not epsilon else [1 - self.epsilon, self.epsilon]
+        options = [1, 0]
+        selected = random.choices(options, best_weights)[0]
+        if selected == 1:
+            best_reward = self.best_future_reward(state)
+            result = [key[1] for key, value in self.q.items() if key[0] == tuple(state) and value == best_reward]
+            if result:
+                return result[0]
+        available_actions = Nim.available_actions(state)
+        result = random.choice(list(available_actions))
+        return result
 
 def train(n):
     """
